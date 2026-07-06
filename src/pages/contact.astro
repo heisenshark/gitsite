@@ -1,0 +1,324 @@
+---
+// contact.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactForm from '../components/ContactForm.astro';
+
+const socials = [
+  {
+    label: 'GitHub',
+    handle: '@heisenshark',
+    href: 'https://github.com/heisenshark',
+    color: 'var(--text-primary)',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>`,
+  },
+  {
+    label: 'LinkedIn',
+    handle: 'heisenshark',
+    href: 'https://linkedin.com/in/heisenshark',
+    color: '#0077b5',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
+  },
+  {
+    label: 'Twitter / X',
+    handle: '@heisenshark',
+    href: 'https://x.com/heisenshark',
+    color: '#e7e7e7',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+  },
+  {
+    label: 'Email',
+    handle: 'hello@heisenshark.dev',
+    href: 'mailto:hello@heisenshark.dev',
+    color: 'var(--accent-cyan)',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+  },
+];
+---
+
+<BaseLayout
+  title="Contact — heisenshark"
+  description="Get in touch with heisenshark — for collaborations, questions, or just to chat about 3D printing or speedcubing."
+>
+  <div class="contact-page">
+    <div class="page-bg-glow" aria-hidden="true"></div>
+    <div class="page-bg-glow-2" aria-hidden="true"></div>
+
+    <header class="page-header container">
+      <nav class="page-breadcrumb text-mono">
+        <a href="/">~</a>
+        <span>/</span>
+        <span>contact</span>
+      </nav>
+      <span class="section-label">// get_in_touch</span>
+      <h1>Let's <span class="gradient-text">Connect</span></h1>
+      <p class="page-desc">
+        Got a project idea? Want to talk about 3D printing, Linux ricing,
+        or speedcubing? Or just want to say hi? Drop me a message.
+      </p>
+    </header>
+
+    <section class="contact-layout container">
+      <!-- Social Links Sidebar -->
+      <div class="contact-sidebar">
+        <div class="sidebar-section">
+          <h3 class="sidebar-title text-mono">// find_me_online</h3>
+          <div class="social-cards">
+            {socials.map(s => (
+              <a
+                href={s.href}
+                class="social-card glass-card"
+                target={s.href.startsWith('mailto') ? undefined : '_blank'}
+                rel={s.href.startsWith('mailto') ? undefined : 'noopener noreferrer'}
+                aria-label={`${s.label}: ${s.handle}`}
+              >
+                <span class="social-card-icon" style={`color: ${s.color}`} set:html={s.icon} />
+                <div>
+                  <span class="social-card-label">{s.label}</span>
+                  <span class="social-card-handle">{s.handle}</span>
+                </div>
+                <svg class="social-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Fun availability section -->
+        <div class="availability glass-card">
+          <div class="availability-dot"></div>
+          <div>
+            <span class="availability-status">Currently available</span>
+            <span class="availability-desc">Open to freelance & collaborations</span>
+          </div>
+        </div>
+
+        <!-- Interests for context -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title text-mono">// i_enjoy_talking_about</h3>
+          <ul class="interest-list">
+            <li>🖨️ FDM 3D Printing & design</li>
+            <li>🐧 Linux, Arch & ricing setups</li>
+            <li>🎲 Speedcubing & WCA algorithms</li>
+            <li>🧊 Blender & 3D modeling</li>
+            <li>💻 Systems programming & tooling</li>
+            <li>🤖 Open source collaboration</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-main">
+        <div class="form-heading">
+          <h2>Send a message</h2>
+          <p>I'll reply within 48 hours. Usually much faster if I'm not printing something.</p>
+        </div>
+        <ContactForm />
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .contact-page {
+    padding-top: 6rem;
+    padding-bottom: 5rem;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .page-bg-glow {
+    position: absolute;
+    top: 0; left: 30%;
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0, 229, 255, 0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .page-bg-glow-2 {
+    position: absolute;
+    top: 20%; right: 10%;
+    width: 400px; height: 300px;
+    background: radial-gradient(ellipse, rgba(255, 0, 204, 0.05) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .page-header {
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+    max-width: 600px;
+  }
+
+  .page-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .page-breadcrumb a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+  }
+
+  .page-header h1 { margin: 0.5rem 0 1rem; }
+
+  .page-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 50ch;
+  }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* Sidebar */
+  .contact-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: sticky;
+    top: 6rem;
+  }
+
+  .sidebar-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .social-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .social-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .social-card-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .social-card div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .social-card-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .social-card-handle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .social-card-arrow {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform var(--transition-fast), color var(--transition-fast);
+  }
+
+  .social-card:hover .social-card-arrow {
+    transform: translateX(3px);
+    color: var(--accent-cyan);
+  }
+
+  /* Availability */
+  .availability {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .availability-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.2);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .availability div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .availability-status {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent-green);
+  }
+
+  .availability-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* Interest list */
+  .interest-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .interest-list li {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    padding-left: 0.25rem;
+  }
+
+  /* Form area */
+  .contact-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-heading h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-heading p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 900px) {
+    .contact-layout {
+      grid-template-columns: 1fr;
+    }
+    .contact-sidebar {
+      position: static;
+    }
+  }
+</style>

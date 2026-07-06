@@ -1,0 +1,140 @@
+---
+// BlogCard.astro
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  slug: string;
+  tags?: string[];
+  readingTime?: number;
+}
+
+const { title, description, pubDate, slug, tags = [], readingTime = 5 } = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<a href={`/blog/${slug}`} class="blog-card glass-card" aria-label={`Read: ${title}`}>
+  <div class="blog-card-meta">
+    <time class="blog-date text-mono" datetime={pubDate.toISOString()}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      {formattedDate}
+    </time>
+    <span class="blog-read-time text-mono">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      {readingTime} min read
+    </span>
+  </div>
+
+  <h3 class="blog-title">{title}</h3>
+  <p class="blog-desc">{description}</p>
+
+  {tags.length > 0 && (
+    <div class="blog-tags">
+      {tags.slice(0, 3).map((tag, i) => (
+        <span class={`tag ${i % 2 === 1 ? 'magenta' : ''}`}>{tag}</span>
+      ))}
+    </div>
+  )}
+
+  <span class="blog-cta">
+    Read post
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </span>
+</a>
+
+<style>
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.75rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .blog-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gradient-text);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-base);
+  }
+
+  .blog-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .blog-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .blog-date,
+  .blog-read-time {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .blog-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin: 0;
+    transition: color var(--transition-fast);
+  }
+
+  .blog-card:hover .blog-title {
+    color: var(--accent-cyan);
+  }
+
+  .blog-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .blog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .blog-cta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    margin-top: 0.25rem;
+    transition: gap var(--transition-fast);
+  }
+
+  .blog-card:hover .blog-cta {
+    gap: 0.65rem;
+  }
+</style>

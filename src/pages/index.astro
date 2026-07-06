@@ -1,0 +1,336 @@
+---
+// index.astro — Homepage
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import BlogCard from '../components/BlogCard.astro';
+
+// Featured projects (hardcoded — swap with yours!)
+const featuredProjects = [
+  {
+    title: 'Download Manager',
+    description: 'A multithreaded Java download manager with a sleek dark UI, pause/resume, queue management, and real-time progress tracking.',
+    tags: ['Java', 'Swing', 'Multithreading', 'UI'],
+    github: 'https://github.com/heisenshark/download-manager',
+    featured: true,
+    icon: '⬇️',
+  },
+  {
+    title: 'Custom 3D Printer Mods',
+    description: 'Collection of parametric Blender and OpenSCAD designs for 3D printer upgrades — cable chains, tool holders, and enclosure parts.',
+    tags: ['Blender', 'OpenSCAD', '3D Printing', 'FDM'],
+    github: 'https://github.com/heisenshark/printer-mods',
+    featured: false,
+    icon: '🖨️',
+  },
+  {
+    title: 'Cube Timer App',
+    description: 'A minimal, keyboard-driven Rubik\'s cube timer with scramble generation, statistical tracking, and session management.',
+    tags: ['Python', 'TUI', 'Speedcubing', 'CLI'],
+    github: 'https://github.com/heisenshark/cube-timer',
+    featured: false,
+    icon: '🎲',
+  },
+];
+
+// Sample blog posts (until content collections are loaded)
+const samplePosts = [
+  {
+    title: 'Getting Started with 3D Printing: A Coder\'s Guide',
+    description: 'Everything I wish I knew before buying my first FDM printer — from slicers to bed leveling to parametric design in OpenSCAD.',
+    pubDate: new Date('2025-11-15'),
+    slug: 'getting-started-3d-printing',
+    tags: ['3D Printing', 'FDM', 'OpenSCAD'],
+    readingTime: 8,
+  },
+  {
+    title: 'Why I Use Arch Linux (and You Should Too)',
+    description: 'A love letter to Arch Linux — the rolling release, the AUR, and why configuring your system from scratch makes you a better developer.',
+    pubDate: new Date('2025-10-22'),
+    slug: 'why-i-use-arch-linux',
+    tags: ['Linux', 'Arch', 'FOSS', 'DevEnv'],
+    readingTime: 6,
+  },
+  {
+    title: 'Speedcubing: From 2 Minutes to Sub-20',
+    description: 'My journey learning CFOP, muscle memory, and why solving a cube is surprisingly similar to debugging code.',
+    pubDate: new Date('2025-09-08'),
+    slug: 'speedcubing-journey',
+    tags: ['Speedcubing', 'CFOP', 'Hobby'],
+    readingTime: 5,
+  },
+];
+
+const skills = [
+  { name: 'Languages', items: ['Java', 'Python', 'C/C++', 'Bash', 'JavaScript', 'TypeScript'] },
+  { name: 'Tools & Env', items: ['Linux', 'Git', 'Docker', 'Vim/Neovim', 'GDB'] },
+  { name: 'Making', items: ['FDM 3D Printing', 'Blender', 'OpenSCAD', 'CAD Design'] },
+  { name: 'Hobbies', items: ['Speedcubing', 'CFOP Method', 'Mechanical Keyboards', 'Retro Games'] },
+];
+---
+
+<BaseLayout title="heisenshark — Coder, Maker & Cube Solver">
+  <!-- HERO with fireworks -->
+  <Hero />
+
+  <!-- ABOUT SECTION -->
+  <section class="section about-section" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-text">
+          <span class="section-label">// about_me</span>
+          <h2>A human who writes code<br/>and <span class="gradient-text">breaks things</span></h2>
+          <p>
+            I'm a passionate software developer who loves to tinker. 
+            When I'm not writing code, I'm designing parts in Blender, 
+            watching a 3D printer melt plastic into something useful, 
+            or training finger tricks to shave milliseconds off my cube solve time.
+          </p>
+          <p style="margin-top:1rem;">
+            I run Arch Linux (yes, I'll mention it), live in the terminal,
+            and believe the best software is built with obsessive attention to detail —
+            kind of like speedcubing, actually.
+          </p>
+          <a href="/contact" class="btn btn-outline" style="margin-top:1.5rem;">
+            Let's Connect
+          </a>
+        </div>
+
+        <div class="skills-grid">
+          {skills.map(category => (
+            <div class="skill-category glass-card">
+              <h4 class="skill-title">
+                <span class="gradient-text">{category.name}</span>
+              </h4>
+              <div class="skill-items">
+                {category.items.map(item => (
+                  <span class="skill-item">{item}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="container"><div class="divider"></div></div>
+
+  <!-- FEATURED PROJECTS -->
+  <section class="section" id="projects">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">// featured_projects</span>
+        <h2>Things I've <span class="gradient-text">Built</span></h2>
+        <p>A selection of projects I'm proud of. There's more on GitHub.</p>
+      </div>
+
+      <div class="grid-3">
+        {featuredProjects.map(project => (
+          <ProjectCard {...project} />
+        ))}
+      </div>
+
+      <div class="section-cta">
+        <a href="/projects" class="btn btn-outline">
+          View All Projects
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="container"><div class="divider"></div></div>
+
+  <!-- BLOG SECTION -->
+  <section class="section" id="blog">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">// latest_posts</span>
+        <h2>From the <span class="gradient-text">Blog</span></h2>
+        <p>Thoughts on code, hardware, and miscellaneous nerd culture.</p>
+      </div>
+
+      <div class="grid-3">
+        {samplePosts.map(post => (
+          <BlogCard {...post} />
+        ))}
+      </div>
+
+      <div class="section-cta">
+        <a href="/blog" class="btn btn-outline">
+          Read All Posts
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS / FUN FACTS -->
+  <section class="section stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item glass-card">
+          <div class="stat-value gradient-text">~14s</div>
+          <div class="stat-label">average cube solve</div>
+        </div>
+        <div class="stat-item glass-card">
+          <div class="stat-value gradient-text">500+</div>
+          <div class="stat-label">hours in Blender</div>
+        </div>
+        <div class="stat-item glass-card">
+          <div class="stat-value gradient-text">∞</div>
+          <div class="stat-label">kg of PLA filament</div>
+        </div>
+        <div class="stat-item glass-card">
+          <div class="stat-value gradient-text">btw</div>
+          <div class="stat-label">I use Arch</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section class="cta-band">
+    <div class="container cta-inner">
+      <div>
+        <h2>Got a cool project idea?</h2>
+        <p>Let's build something amazing together.</p>
+      </div>
+      <a href="/contact" class="btn btn-primary" style="flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Get in Touch
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* About section */
+  .about-section { padding-top: var(--space-24); }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .about-text h2 {
+    margin: 1rem 0 1.25rem;
+  }
+
+  .about-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  /* Skills */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .skill-category {
+    padding: 1.25rem;
+  }
+
+  .skill-title {
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .skill-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .skill-item {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+  }
+
+  .skill-item:hover {
+    color: var(--accent-cyan);
+    border-color: var(--border-accent);
+  }
+
+  /* Section CTA */
+  .section-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-12);
+  }
+
+  /* Stats */
+  .stats-section { padding: var(--space-16) var(--space-4); }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-family: var(--font-mono);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+
+  /* CTA Band */
+  .cta-band {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.05), rgba(139, 92, 246, 0.05));
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: var(--space-16) var(--space-4);
+  }
+
+  .cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .cta-inner h2 { font-size: 2rem; }
+  .cta-inner p { color: var(--text-secondary); margin-top: 0.35rem; }
+
+  @media (max-width: 900px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .cta-inner { flex-direction: column; text-align: center; }
+    .skills-grid { grid-template-columns: 1fr; }
+  }
+</style>

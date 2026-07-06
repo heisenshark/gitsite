@@ -1,0 +1,172 @@
+---
+// blog/[...slug].astro — Dynamic route for blog posts
+// This serves the static markdown blog posts from /src/content/blog/
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+// Static posts data - replace with getCollection when using content collections
+const posts: Record<string, {
+  title: string;
+  description: string;
+  pubDate: Date;
+  tags: string[];
+  readingTime: number;
+  content: string;
+}> = {
+  'getting-started-3d-printing': {
+    title: "Getting Started with 3D Printing: A Coder's Guide",
+    description: "Everything I wish I knew before buying my first FDM printer — from slicers to bed leveling to parametric design in OpenSCAD.",
+    pubDate: new Date('2025-11-15'),
+    tags: ['3D Printing', 'FDM', 'OpenSCAD', 'Hardware'],
+    readingTime: 8,
+    content: ``,
+  },
+  'why-i-use-arch-linux': {
+    title: 'Why I Use Arch Linux (and You Should Too)',
+    description: 'A love letter to Arch Linux — the rolling release, the AUR, and why configuring your system from scratch makes you a better developer.',
+    pubDate: new Date('2025-10-22'),
+    tags: ['Linux', 'Arch', 'FOSS', 'DevEnv'],
+    readingTime: 6,
+    content: ``,
+  },
+  'speedcubing-journey': {
+    title: 'Speedcubing: From 2 Minutes to Sub-20',
+    description: "My journey learning CFOP, muscle memory, and why solving a Rubik's cube is surprisingly similar to debugging code.",
+    pubDate: new Date('2025-09-08'),
+    tags: ['Speedcubing', 'CFOP', 'Hobby', 'Learning'],
+    readingTime: 5,
+    content: ``,
+  },
+  'blender-for-programmers': {
+    title: 'Blender for Programmers: Thinking in Geometry Nodes',
+    description: "If you can write code, you can master Blender's Geometry Nodes. A bridge from programming to 3D modeling.",
+    pubDate: new Date('2025-08-03'),
+    tags: ['Blender', '3D Modeling', 'Geometry Nodes'],
+    readingTime: 10,
+    content: ``,
+  },
+  'java-swing-dark-ui': {
+    title: 'Java Swing in 2025: Building a Dark-Themed Download Manager',
+    description: "Swing gets a bad rap, but with effort it can look fantastic. Here's how I built a custom dark UI.",
+    pubDate: new Date('2025-07-18'),
+    tags: ['Java', 'Swing', 'UI Design', 'Dark Theme'],
+    readingTime: 12,
+    content: ``,
+  },
+  'homelab-setup': {
+    title: 'My Homelab Setup: Running Services on Arch Linux',
+    description: 'A walkthrough of my self-hosted homelab — Docker, Nginx, Nextcloud, Jellyfin, and Grafana on a ThinkPad.',
+    pubDate: new Date('2025-06-12'),
+    tags: ['Linux', 'Homelab', 'Self-hosted', 'Docker'],
+    readingTime: 9,
+    content: ``,
+  },
+};
+
+export async function getStaticPaths() {
+  return Object.keys(posts).map(slug => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const post = posts[slug as string];
+
+if (!post) {
+  return Astro.redirect('/blog');
+}
+---
+
+<BlogLayout
+  title={post.title}
+  description={post.description}
+  pubDate={post.pubDate}
+  tags={post.tags}
+  readingTime={post.readingTime}
+>
+  <div class="post-placeholder">
+    <div class="placeholder-terminal glass-card">
+      <div class="terminal-bar">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="terminal-title">heisenshark@arch: ~/blog/{slug}.md</span>
+      </div>
+      <div class="terminal-body">
+        <p class="terminal-line"><span class="t-prompt">$</span> <span class="t-cmd">cat {slug}.md</span></p>
+        <p class="terminal-line t-output">Reading file...</p>
+        <p class="terminal-line t-output t-warn">⚠ Post content coming soon — check back later!</p>
+        <p class="terminal-line t-output">This post is being written right now.</p>
+        <p class="terminal-line">&nbsp;</p>
+        <p class="terminal-line t-output">In the meantime, explore other posts:</p>
+        <p class="terminal-line"><span class="t-prompt">$</span> <a href="/blog" class="t-link">cd ../blog</a></p>
+        <p class="terminal-line t-cursor">█</p>
+      </div>
+    </div>
+  </div>
+</BlogLayout>
+
+<style>
+  .post-placeholder {
+    padding: 2rem 0;
+  }
+
+  .placeholder-terminal {
+    overflow: hidden;
+    font-family: var(--font-mono);
+    border-color: rgba(57, 255, 20, 0.2);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green { background: #28c840; }
+
+  .terminal-title {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+  }
+
+  .terminal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .terminal-line {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .t-prompt { color: var(--accent-green); margin-right: 0.5rem; }
+  .t-cmd { color: var(--text-primary); }
+  .t-output { color: var(--text-muted); padding-left: 1.5rem; }
+  .t-warn { color: var(--accent-orange); }
+
+  .t-link {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    transition: opacity var(--transition-fast);
+  }
+  .t-link:hover { opacity: 0.8; color: var(--accent-cyan); }
+
+  .t-cursor {
+    color: var(--accent-cyan);
+    animation: blink 1s step-end infinite;
+    padding-left: 0;
+    font-size: 1rem;
+  }
+</style>

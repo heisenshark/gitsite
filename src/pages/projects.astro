@@ -1,0 +1,222 @@
+---
+// projects.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+
+const projects = [
+  {
+    title: 'Download Manager',
+    description: 'A multithreaded Java download manager with a sleek dark UI, pause/resume, queue management, and real-time progress tracking. Built with pure Swing and custom UI components.',
+    tags: ['Java', 'Swing', 'Multithreading', 'Dark UI'],
+    github: 'https://github.com/heisenshark/download-manager',
+    featured: true,
+    icon: '⬇️',
+  },
+  {
+    title: 'Custom 3D Printer Mods',
+    description: 'Parametric designs for 3D printer upgrades including cable chains, exhaust filters, tool holders, enclosure panels, and toolhead modifications in Blender and OpenSCAD.',
+    tags: ['Blender', 'OpenSCAD', '3D Printing', 'FDM', 'Parametric'],
+    github: 'https://github.com/heisenshark/printer-mods',
+    featured: false,
+    icon: '🖨️',
+  },
+  {
+    title: 'Cube Timer',
+    description: "Minimal keyboard-driven Rubik's cube timer with WCA scramble generation, statistical tracking (ao5, ao12, session best), and session export.",
+    tags: ['Python', 'TUI', 'Speedcubing', 'Textual'],
+    github: 'https://github.com/heisenshark/cube-timer',
+    featured: true,
+    icon: '🎲',
+  },
+  {
+    title: 'dotfiles',
+    description: 'My carefully curated Arch Linux dotfiles — Hyprland, Waybar, Neovim config, shell aliases, and all the ricing that makes my setup uniquely mine.',
+    tags: ['Linux', 'Arch', 'Hyprland', 'Neovim', 'Shell'],
+    github: 'https://github.com/heisenshark/dotfiles',
+    featured: false,
+    icon: '🐧',
+  },
+  {
+    title: 'Blender Procedural Shaders',
+    description: 'A library of geometry-node and shader setups for procedural texturing — wood grain, metal wear, concrete, and sci-fi panel effects.',
+    tags: ['Blender', 'GLSL', '3D Art', 'Shader'],
+    github: 'https://github.com/heisenshark/blender-shaders',
+    featured: false,
+    icon: '🎨',
+  },
+  {
+    title: 'Speedcubing Stats Dashboard',
+    description: 'A personal dashboard that imports WCA competition results and training session data to visualize progress, identify weaknesses by case, and track PBs.',
+    tags: ['Python', 'Data Viz', 'WCA API', 'Pandas'],
+    github: 'https://github.com/heisenshark/cube-stats',
+    demo: 'https://cube-stats.heisenshark.dev',
+    featured: false,
+    icon: '📊',
+  },
+];
+---
+
+<BaseLayout
+  title="Projects — heisenshark"
+  description="All of heisenshark's software projects — from download managers to 3D printing mods and cube timers."
+>
+  <div class="projects-page">
+    <div class="page-bg-glow" aria-hidden="true"></div>
+
+    <header class="page-header container">
+      <nav class="page-breadcrumb text-mono">
+        <a href="/">~</a>
+        <span>/</span>
+        <span>projects</span>
+      </nav>
+      <span class="section-label">// my_projects</span>
+      <h1>Things I've <span class="gradient-text">Built</span></h1>
+      <p class="page-desc">
+        A mix of software tools, 3D designs, and nerdy side projects.
+        Most have a GitHub link — feel free to fork and tinker.
+      </p>
+    </header>
+
+    <section class="projects-grid-section container">
+      <!-- Featured row label -->
+      <div class="projects-filter">
+        <span class="filter-label text-mono">
+          <span class="accent">ls</span> ./projects — {projects.length} items
+        </span>
+      </div>
+
+      <div class="grid-3">
+        {projects.map(project => (
+          <ProjectCard {...project} />
+        ))}
+      </div>
+    </section>
+
+    <!-- Open Source CTA -->
+    <section class="oss-cta container">
+      <div class="glass-card oss-inner">
+        <div class="oss-icon">🐙</div>
+        <div>
+          <h3>More on GitHub</h3>
+          <p>I open-source most of what I build. Star what you find useful — it means a lot!</p>
+        </div>
+        <a
+          href="https://github.com/heisenshark"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-primary"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          github.com/heisenshark
+        </a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .projects-page {
+    padding-top: 6rem;
+    padding-bottom: 5rem;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .page-bg-glow {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 400px;
+    background: radial-gradient(ellipse, rgba(139, 92, 246, 0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .page-header {
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+    max-width: 700px;
+  }
+
+  .page-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .page-breadcrumb a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+  }
+
+  .page-header h1 { margin: 0.5rem 0 1rem; }
+
+  .page-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 55ch;
+  }
+
+  .projects-grid-section {
+    padding-bottom: 3rem;
+  }
+
+  .projects-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .filter-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .filter-label .accent {
+    color: var(--accent-cyan);
+    font-weight: 600;
+  }
+
+  .oss-cta {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .oss-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .oss-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .oss-inner div {
+    flex: 1;
+  }
+
+  .oss-inner h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .oss-inner p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 600px) {
+    .oss-inner { flex-direction: column; text-align: center; }
+    .btn { width: 100%; justify-content: center; }
+  }
+</style>

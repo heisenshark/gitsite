@@ -1,0 +1,197 @@
+---
+// blog/index.astro — Blog listing page
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+
+// Sample blog posts - replace with getCollection('blog') when you add content files
+const posts = [
+  {
+    title: "Getting Started with 3D Printing: A Coder's Guide",
+    description: 'Everything I wish I knew before buying my first FDM printer — from slicers to bed leveling to parametric design in OpenSCAD. A practical guide with a developer mindset.',
+    pubDate: new Date('2025-11-15'),
+    slug: 'getting-started-3d-printing',
+    tags: ['3D Printing', 'FDM', 'OpenSCAD', 'Hardware'],
+    readingTime: 8,
+  },
+  {
+    title: 'Why I Use Arch Linux (and You Should Too)',
+    description: 'A love letter to Arch Linux — the rolling release, the AUR, and why configuring your system from scratch makes you a fundamentally better developer.',
+    pubDate: new Date('2025-10-22'),
+    slug: 'why-i-use-arch-linux',
+    tags: ['Linux', 'Arch', 'FOSS', 'DevEnv'],
+    readingTime: 6,
+  },
+  {
+    title: 'Speedcubing: From 2 Minutes to Sub-20',
+    description: "My journey learning CFOP, muscle memory, and why solving a Rubik's cube is surprisingly similar to debugging code — both require pattern recognition and systematic thinking.",
+    pubDate: new Date('2025-09-08'),
+    slug: 'speedcubing-journey',
+    tags: ['Speedcubing', 'CFOP', 'Hobby', 'Learning'],
+    readingTime: 5,
+  },
+  {
+    title: 'Blender for Programmers: Thinking in Geometry Nodes',
+    description: 'If you can write code, you can master Blender\'s Geometry Nodes. A bridge from programming concepts to procedural 3D modeling for software developers.',
+    pubDate: new Date('2025-08-03'),
+    slug: 'blender-for-programmers',
+    tags: ['Blender', '3D Modeling', 'Geometry Nodes'],
+    readingTime: 10,
+  },
+  {
+    title: 'Java Swing in 2025: Building a Dark-Themed Download Manager',
+    description: "Swing gets a bad rap, but with a bit of effort it can look fantastic. Here's how I built a custom dark UI for my download manager — complete with rounded corners, custom scrollbars, and real-time progress bars.",
+    pubDate: new Date('2025-07-18'),
+    slug: 'java-swing-dark-ui',
+    tags: ['Java', 'Swing', 'UI Design', 'Dark Theme'],
+    readingTime: 12,
+  },
+  {
+    title: 'My Homelab Setup: Running Services on Arch Linux',
+    description: 'A walkthrough of my self-hosted homelab — Docker, Nginx reverse proxy, Nextcloud, Jellyfin, and monitoring with Grafana, all running on a repurposed ThinkPad.',
+    pubDate: new Date('2025-06-12'),
+    slug: 'homelab-setup',
+    tags: ['Linux', 'Homelab', 'Self-hosted', 'Docker'],
+    readingTime: 9,
+  },
+];
+
+// Sort by date descending
+const sorted = posts.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+---
+
+<BaseLayout
+  title="Blog — heisenshark"
+  description="heisenshark's blog — coding, 3D printing, speedcubing, Linux, and other nerd culture."
+>
+  <div class="blog-page">
+    <div class="page-bg-glow" aria-hidden="true"></div>
+
+    <header class="page-header container">
+      <nav class="page-breadcrumb text-mono">
+        <a href="/">~</a>
+        <span>/</span>
+        <span>blog</span>
+      </nav>
+      <span class="section-label">// blog_posts</span>
+      <h1>Words from the <span class="gradient-text">Terminal</span></h1>
+      <p class="page-desc">
+        Thoughts on code, hardware, cubing, Linux, and everything in between.
+        No newsletter, no ads — just me typing into the void.
+      </p>
+    </header>
+
+    <section class="blog-list container">
+      <div class="blog-header-row">
+        <span class="filter-label text-mono">
+          <span class="accent">find</span> ./posts -name "*.md" — {sorted.length} articles
+        </span>
+      </div>
+
+      <div class="grid-3">
+        {sorted.map(post => (
+          <BlogCard {...post} />
+        ))}
+      </div>
+    </section>
+
+    <!-- RSS hint -->
+    <div class="rss-hint container">
+      <a href="/rss.xml" class="rss-link" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.18 15.64a2.18 2.18 0 01 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 012.18-2.18M4 4.44A15.56 15.56 0 0119.56 20h-2.83A12.73 12.73 0 004 7.27V4.44m0 5.66a9.9 9.9 0 019.9 9.9h-2.83A7.07 7.07 0 004 12.93V10.1z"/></svg>
+        Subscribe via RSS
+      </a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .blog-page {
+    padding-top: 6rem;
+    padding-bottom: 5rem;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .page-bg-glow {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 400px;
+    background: radial-gradient(ellipse, rgba(255, 0, 204, 0.05) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .page-header {
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+    max-width: 700px;
+  }
+
+  .page-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .page-breadcrumb a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+  }
+
+  .page-header h1 { margin: 0.5rem 0 1rem; }
+
+  .page-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 55ch;
+  }
+
+  .blog-list {
+    padding-bottom: 3rem;
+  }
+
+  .blog-header-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .filter-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .filter-label .accent {
+    color: var(--accent-magenta);
+    font-weight: 600;
+  }
+
+  .rss-hint {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 1rem;
+  }
+
+  .rss-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent-orange);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity var(--transition-fast);
+  }
+
+  .rss-link:hover {
+    opacity: 1;
+    color: var(--accent-orange);
+  }
+</style>
