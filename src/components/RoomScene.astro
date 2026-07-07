@@ -1,0 +1,653 @@
+---
+// RoomScene.astro — Three.js 3D room with point-and-click adventure interaction
+---
+
+<div id="room-wrapper">
+  <!-- Loading overlay -->
+  <div id="room-loader" aria-live="polite" role="status">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Loading room<span class="loader-dots">...</span></div>
+      <div class="loader-bar-track"><div id="loader-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- Three.js canvas -->
+  <canvas id="room-canvas" aria-label="Interactive 3D room — click on objects to learn more"></canvas>
+
+  <!-- Hint overlay -->
+  <div id="room-hint" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 15l5.5 5.5"/><circle cx="11" cy="11" r="7"/></svg>
+    Click on objects to explore
+  </div>
+
+  <!-- Info panel (hidden by default) -->
+  <div id="room-info-panel" role="complementary" aria-label="Object information" aria-hidden="true">
+    <button id="room-info-close" aria-label="Close panel">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="info-icon" id="room-info-icon">💻</div>
+    <h3 id="room-info-title">Object</h3>
+    <p id="room-info-desc">Description goes here.</p>
+    <a id="room-info-link" href="#" class="info-link" style="display:none" target="_blank" rel="noopener">
+      Learn more
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+<style>
+  #room-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0a0a14;
+  }
+
+  #room-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: default;
+  }
+  #room-canvas.hovering {
+    cursor: pointer;
+  }
+
+  /* ── Loading overlay ── */
+  #room-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a14;
+    z-index: 20;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  #room-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .loader-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(0,229,255,0.15);
+    border-top-color: #00e5ff;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.1em;
+  }
+  .loader-dots { animation: blink 1.2s steps(3, start) infinite; }
+  @keyframes blink { 0%,100% { opacity: 0; } 50% { opacity: 1; } }
+  .loader-bar-track {
+    width: 180px;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #loader-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00e5ff, #8b5cf6);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  /* ── Hint ── */
+  #room-hint {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    transition: opacity 1s ease;
+    z-index: 5;
+  }
+  #room-hint.hidden { opacity: 0; }
+
+  /* ── Info panel ── */
+  #room-info-panel {
+    position: absolute;
+    top: 50%;
+    right: -320px;
+    transform: translateY(-50%);
+    width: 280px;
+    background: rgba(10, 10, 20, 0.85);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.08), 0 20px 60px rgba(0,0,0,0.5);
+  }
+  #room-info-panel.open {
+    right: 1.5rem;
+  }
+  #room-info-panel[aria-hidden="true"] {
+    pointer-events: none;
+  }
+
+  #room-info-close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    transition: all 0.2s;
+  }
+  #room-info-close:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  .info-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+  }
+
+  #room-info-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.5rem;
+    background: linear-gradient(90deg, #00e5ff, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  #room-info-desc {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  .info-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #00e5ff;
+    text-decoration: none;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 0.35rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .info-link:hover {
+    background: rgba(0,229,255,0.1);
+    border-color: rgba(0,229,255,0.6);
+  }
+</style>
+
+<script>
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+
+// ──────────────────────────────────────────────
+// DOM refs
+// ──────────────────────────────────────────────
+const wrapper   = document.getElementById('room-wrapper');
+const canvas    = document.getElementById('room-canvas');
+const loader    = document.getElementById('room-loader');
+const loaderBar = document.getElementById('loader-bar');
+const hint      = document.getElementById('room-hint');
+const infoPanel = document.getElementById('room-info-panel');
+const infoClose = document.getElementById('room-info-close');
+const infoIcon  = document.getElementById('room-info-icon');
+const infoTitle = document.getElementById('room-info-title');
+const infoDesc  = document.getElementById('room-info-desc');
+const infoLink  = document.getElementById('room-info-link');
+
+// ──────────────────────────────────────────────
+// Clickable object metadata
+// Customise these to match your room objects!
+// Each entry needs: name matching a mesh name in your GLB,
+// OR a placeholder mesh id for the built-in geometry.
+// ──────────────────────────────────────────────
+const HOTSPOTS = [
+  {
+    id: 'desk_monitor',
+    icon: '🖥️',
+    title: 'Dev Station',
+    desc: 'Where the magic happens. Running Arch Linux with Neovim and a carefully crafted dotfiles setup.',
+    link: 'https://github.com/heisenshark',
+  },
+  {
+    id: 'desk_surface',
+    icon: '⌨️',
+    title: 'The Desk',
+    desc: 'Mechanical keyboard, soldering iron always nearby, and at least three unfinished projects.',
+    link: null,
+  },
+  {
+    id: 'printer',
+    icon: '🖨️',
+    title: '3D Printer',
+    desc: 'FDM printer with a pile of custom mods — cable chains, spool holders, the works.',
+    link: 'https://github.com/heisenshark/printer-mods',
+  },
+  {
+    id: 'chair',
+    icon: '🪑',
+    title: 'The Chair',
+    desc: 'Where long debugging sessions and late-night Speedcubing practice happen.',
+    link: null,
+  },
+  {
+    id: 'bookshelf',
+    icon: '📚',
+    title: 'Bookshelf',
+    desc: 'Mostly programming books, some sci-fi. Also where the spare PLA spools live.',
+    link: '/blog',
+  },
+];
+
+// ──────────────────────────────────────────────
+// Renderer
+// ──────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: false,
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+// ──────────────────────────────────────────────
+// Scene & Camera
+// ──────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a14);
+scene.fog = new THREE.Fog(0x0a0a14, 15, 30);
+
+// Adventure-game isometric-ish camera
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+camera.position.set(6, 5, 8);
+camera.lookAt(0, 0.5, 0);
+
+// ──────────────────────────────────────────────
+// Lighting
+// ──────────────────────────────────────────────
+// Soft ambient
+const ambient = new THREE.AmbientLight(0x1a1a2e, 2.5);
+scene.add(ambient);
+
+// Warm key light (ceiling lamp)
+const keyLight = new THREE.DirectionalLight(0xfff5e0, 2.0);
+keyLight.position.set(3, 8, 4);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(1024, 1024);
+keyLight.shadow.camera.near = 0.5;
+keyLight.shadow.camera.far = 30;
+keyLight.shadow.camera.left = -8;
+keyLight.shadow.camera.right = 8;
+keyLight.shadow.camera.top = 8;
+keyLight.shadow.camera.bottom = -8;
+scene.add(keyLight);
+
+// Monitor blue-ish fill (left side glow)
+const monitorLight = new THREE.PointLight(0x00e5ff, 1.5, 5);
+monitorLight.position.set(-1.5, 1.5, 0.5);
+scene.add(monitorLight);
+
+// Warm desk lamp glow (right)
+const deskLamp = new THREE.PointLight(0xff9a3c, 1.2, 4);
+deskLamp.position.set(1.5, 1.5, 0.5);
+scene.add(deskLamp);
+
+// Rim fill from behind
+const rimLight = new THREE.DirectionalLight(0x8b5cf6, 0.5);
+rimLight.position.set(-5, 3, -5);
+scene.add(rimLight);
+
+// ──────────────────────────────────────────────
+// Placeholder geometry (shown until GLB loads)
+// ──────────────────────────────────────────────
+const placeholderGroup = new THREE.Group();
+scene.add(placeholderGroup);
+
+const matWall   = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.9 });
+const matFloor  = new THREE.MeshStandardMaterial({ color: 0x12121e, roughness: 0.8 });
+const matDesk   = new THREE.MeshStandardMaterial({ color: 0x2d2d44, roughness: 0.5 });
+const matMonitor = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.3, metalness: 0.6 });
+const matScreen = new THREE.MeshStandardMaterial({ color: 0x00e5ff, emissive: 0x004466, emissiveIntensity: 0.8, roughness: 0.2 });
+const matChair  = new THREE.MeshStandardMaterial({ color: 0x222233, roughness: 0.7 });
+const matPrinter = new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.6 });
+const matBook   = new THREE.MeshStandardMaterial({ color: 0x3d2b1f, roughness: 0.8 });
+
+function box(w, h, d, mat, x, y, z, name) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  if (name) mesh.name = name;
+  placeholderGroup.add(mesh);
+  return mesh;
+}
+
+// Floor
+const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(12, 10), matFloor);
+floorMesh.rotation.x = -Math.PI / 2;
+floorMesh.receiveShadow = true;
+placeholderGroup.add(floorMesh);
+
+// Back wall
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(12, 6), matWall);
+backWall.position.set(0, 3, -5);
+scene.add(backWall);
+
+// Left wall
+const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 6), matWall);
+leftWall.position.set(-6, 3, 0);
+leftWall.rotation.y = Math.PI / 2;
+scene.add(leftWall);
+
+// Desk
+box(3.5, 0.1, 1.2, matDesk, -0.5, 0.85, 0, 'desk_surface');
+
+// Desk legs
+box(0.08, 0.85, 0.08, matDesk, -2.1, 0.425, -0.5, null);
+box(0.08, 0.85, 0.08, matDesk, -2.1, 0.425, 0.5, null);
+box(0.08, 0.85, 0.08, matDesk, 1.1, 0.425, -0.5, null);
+box(0.08, 0.85, 0.08, matDesk, 1.1, 0.425, 0.5, null);
+
+// Monitor stand
+box(0.15, 0.3, 0.15, matMonitor, -0.5, 1.0, -0.3, null);
+// Monitor body
+box(1.6, 1.0, 0.08, matMonitor, -0.5, 1.75, -0.35, 'desk_monitor');
+// Monitor screen (glowing)
+box(1.45, 0.88, 0.02, matScreen, -0.5, 1.75, -0.29, null);
+
+// Chair seat
+box(1.0, 0.12, 1.0, matChair, 1.5, 0.55, 1.2, 'chair');
+// Chair back
+box(1.0, 1.0, 0.1, matChair, 1.5, 1.1, 0.75, null);
+// Chair legs
+box(0.08, 0.55, 0.08, matChair, 1.1, 0.275, 0.85, null);
+box(0.08, 0.55, 0.08, matChair, 1.9, 0.275, 0.85, null);
+box(0.08, 0.55, 0.08, matChair, 1.1, 0.275, 1.55, null);
+box(0.08, 0.55, 0.08, matChair, 1.9, 0.275, 1.55, null);
+
+// 3D Printer (right corner)
+box(0.7, 0.6, 0.6, matPrinter, 2.8, 0.3, -1.5, 'printer');
+// Printer top frame
+box(0.7, 0.05, 0.6, matDesk, 2.8, 0.62, -1.5, null);
+
+// Bookshelf (left wall)
+box(0.15, 2.2, 1.2, matDesk, -2.9, 1.1, -2.5, null); // left side
+box(0.15, 2.2, 1.2, matDesk, -2.3, 1.1, -2.5, null); // right side
+box(2.45, 0.06, 1.2, matDesk, -2.6, 0.5, -2.5, null); // bottom shelf
+box(2.45, 0.06, 1.2, matDesk, -2.6, 1.2, -2.5, null); // middle shelf
+box(2.45, 0.06, 1.2, matDesk, -2.6, 1.9, -2.5, null); // top shelf
+// Books (varied colors to add interest)
+const bookColors = [0x8b2222, 0x1a3a5c, 0x2d5a27, 0x5a2d7a, 0x5a4a1a];
+bookColors.forEach((c, i) => {
+  const bMat = new THREE.MeshStandardMaterial({ color: c, roughness: 0.8 });
+  box(0.12, 0.55, 0.8, bMat, -2.78 + i * 0.2, 0.83, -2.5, i === 0 ? 'bookshelf' : null);
+  box(0.12, 0.5, 0.8, bMat, -2.76 + i * 0.21, 1.53, -2.5, null);
+});
+
+// Ambient dust particles
+const particleGeo = new THREE.BufferGeometry();
+const pCount = 200;
+const pPos = new Float32Array(pCount * 3);
+for (let i = 0; i < pCount * 3; i++) pPos[i] = (Math.random() - 0.5) * 10;
+particleGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.015, transparent: true, opacity: 0.4 });
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+// ──────────────────────────────────────────────
+// Post-processing: outline effect
+// ──────────────────────────────────────────────
+function getSize() {
+  return { w: wrapper.clientWidth, h: wrapper.clientHeight };
+}
+
+const { w: initW, h: initH } = getSize();
+renderer.setSize(initW, initH);
+
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+const outlinePass = new OutlinePass(
+  new THREE.Vector2(initW, initH),
+  scene,
+  camera,
+);
+outlinePass.edgeStrength = 4.0;
+outlinePass.edgeGlow = 0.5;
+outlinePass.edgeThickness = 1.5;
+outlinePass.visibleEdgeColor.set('#00e5ff');
+outlinePass.hiddenEdgeColor.set('#8b5cf6');
+composer.addPass(outlinePass);
+
+const outputPass = new OutputPass();
+composer.addPass(outputPass);
+
+// ──────────────────────────────────────────────
+// Raycaster & interaction
+// ──────────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hovered = null;
+let selected = null;
+let hintHidden = false;
+
+// Collect all clickable meshes (those with an id in HOTSPOTS)
+const hotspotIds = new Set(HOTSPOTS.map(h => h.id));
+
+function getClickables() {
+  const result = [];
+  scene.traverse(obj => {
+    if (obj.isMesh && obj.name && hotspotIds.has(obj.name)) {
+      result.push(obj);
+    }
+  });
+  return result;
+}
+
+function updateMouse(e) {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+canvas.addEventListener('mousemove', e => {
+  updateMouse(e);
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(getClickables(), false);
+
+  if (hits.length > 0) {
+    const obj = hits[0].object;
+    if (hovered !== obj) {
+      hovered = obj;
+      outlinePass.selectedObjects = selected ? [selected, hovered] : [hovered];
+    }
+    canvas.classList.add('hovering');
+  } else {
+    hovered = null;
+    outlinePass.selectedObjects = selected ? [selected] : [];
+    canvas.classList.remove('hovering');
+  }
+});
+
+canvas.addEventListener('click', e => {
+  updateMouse(e);
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(getClickables(), false);
+
+  if (!hintHidden) {
+    hintHidden = true;
+    hint.classList.add('hidden');
+  }
+
+  if (hits.length > 0) {
+    const obj = hits[0].object;
+    selectObject(obj);
+  } else {
+    deselectObject();
+  }
+});
+
+infoClose.addEventListener('click', deselectObject);
+
+function selectObject(obj) {
+  selected = obj;
+  outlinePass.selectedObjects = [obj];
+
+  const data = HOTSPOTS.find(h => h.id === obj.name);
+  if (!data) return;
+
+  infoIcon.textContent = data.icon;
+  infoTitle.textContent = data.title;
+  infoDesc.textContent = data.desc;
+
+  if (data.link) {
+    infoLink.href = data.link;
+    infoLink.style.display = 'inline-flex';
+  } else {
+    infoLink.style.display = 'none';
+  }
+
+  infoPanel.classList.add('open');
+  infoPanel.setAttribute('aria-hidden', 'false');
+}
+
+function deselectObject() {
+  selected = null;
+  outlinePass.selectedObjects = hovered ? [hovered] : [];
+  infoPanel.classList.remove('open');
+  infoPanel.setAttribute('aria-hidden', 'true');
+}
+
+// ──────────────────────────────────────────────
+// GLB loader — swap placeholder once model drops
+// ──────────────────────────────────────────────
+const gltfLoader = new GLTFLoader();
+
+// Check if a room model exists, if so load it
+fetch('/models/room.glb', { method: 'HEAD' })
+  .then(r => {
+    if (r.ok) loadGLB('/models/room.glb');
+    else finishLoading(); // use placeholder
+  })
+  .catch(() => finishLoading());
+
+function loadGLB(url) {
+  gltfLoader.load(
+    url,
+    gltf => {
+      // Hide placeholder
+      placeholderGroup.visible = false;
+      // Add model
+      scene.add(gltf.scene);
+      // Enable shadows on all meshes
+      gltf.scene.traverse(obj => {
+        if (obj.isMesh) {
+          obj.castShadow = true;
+          obj.receiveShadow = true;
+        }
+      });
+      finishLoading();
+    },
+    xhr => {
+      if (xhr.total) {
+        loaderBar.style.width = `${(xhr.loaded / xhr.total) * 100}%`;
+      }
+    },
+    err => {
+      console.warn('GLB load failed, using placeholder:', err);
+      finishLoading();
+    }
+  );
+}
+
+function finishLoading() {
+  loaderBar.style.width = '100%';
+  setTimeout(() => loader.classList.add('hidden'), 400);
+}
+
+// ──────────────────────────────────────────────
+// Resize handler
+// ──────────────────────────────────────────────
+function onResize() {
+  const { w, h } = getSize();
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+  outlinePass.resolution.set(w, h);
+}
+
+const ro = new ResizeObserver(onResize);
+ro.observe(wrapper);
+
+// ──────────────────────────────────────────────
+// Render loop
+// ──────────────────────────────────────────────
+let frame = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+
+  // Gentle particle drift
+  particles.rotation.y += 0.0003;
+  particles.rotation.x += 0.0001;
+
+  // Subtle monitor flicker
+  monitorLight.intensity = 1.5 + Math.sin(frame * 0.05) * 0.05;
+
+  composer.render();
+}
+
+animate();
+</script>
